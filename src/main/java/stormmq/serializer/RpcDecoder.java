@@ -13,14 +13,16 @@ import java.util.List;
 /**
  * 对消息进行反序列化
  */
-public class RpcDecoder extends ByteToMessageDecoder{
-    private Class<?> genericClass;
-    private KryoSerialization kryo;
-    public RpcDecoder(Class<?> genericClass){
-        this.genericClass = genericClass;
-        kryo = new KryoSerialization();
-        kryo.register(genericClass);
-    }
+public class RpcDecoder extends ByteToMessageDecoder {
+	
+	private Class<?> genericClass;
+	private KryoSerialization kryo;
+
+	public RpcDecoder(Class<?> genericClass) {
+		this.genericClass = genericClass;
+		kryo = new KryoSerialization();
+		kryo.register(genericClass);
+	}
 
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
@@ -29,14 +31,13 @@ public class RpcDecoder extends ByteToMessageDecoder{
         /**
          *
          * HEAD_LENGTH是表示传输的数据的长度,序列化过程中,我们把数据的长度写在byte数组的前面四个字节.
-         *
          */
         if(byteBuf.readableBytes() < HEAD_LENGTH){
             return;
         }
         byteBuf.markReaderIndex(); //标记当前的readIndex的位置.
         int dataLength = byteBuf.readInt(); //读取发送过来的消息长度,前四个字节.
-       // System.out.println("dataLength:"+dataLength);
+		// System.out.println("dataLength:"+dataLength);
         if(dataLength < 0){
             channelHandlerContext.close();
         }

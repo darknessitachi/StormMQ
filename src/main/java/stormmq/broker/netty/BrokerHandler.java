@@ -19,6 +19,7 @@ import stormmq.smq.Message;
 @ChannelHandler.Sharable
 //当此handle可以被多次使用,即在多线程中,是多个连接的处理器.
 public class BrokerHandler extends ChannelInboundHandlerAdapter {
+	
     //对Producer发送的消息进行处理.只有一种消息就是Message
     private MessageListener  producerListener;
     //对consumer发送的消息进行处理,有两种消息,一种是订阅信息,一种是消费信息

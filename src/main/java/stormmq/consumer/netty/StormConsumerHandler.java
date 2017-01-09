@@ -9,15 +9,18 @@ import stormmq.smq.ConsumeResult;
  * Created by yang on 16-11-24.
  */
 public class StormConsumerHandler extends ChannelInboundHandlerAdapter {
-    private StormConsumerConnection connect;
-    private Throwable cause;
-    private ResponseCallbackListener listener;
-    StormConsumerHandler(){
-    }
-    public StormConsumerHandler(StormConsumerConnection conn,ResponseCallbackListener listener){
-        this.connect = conn;
-        this.listener = listener;
-    }
+	
+	private StormConsumerConnection connect;
+	private Throwable cause;
+	private ResponseCallbackListener listener;
+
+	StormConsumerHandler() {
+	}
+
+	public StormConsumerHandler(StormConsumerConnection conn, ResponseCallbackListener listener) {
+		this.connect = conn;
+		this.listener = listener;
+	}
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {

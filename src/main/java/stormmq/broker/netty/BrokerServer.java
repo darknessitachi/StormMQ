@@ -5,7 +5,7 @@ package stormmq.broker.netty;
  */
 public interface BrokerServer {
 
+	void init();
 
-    void init();
-    void start();
+	void start();
 }

@@ -1,14 +1,18 @@
-
 package stormmq.broker.netty;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
-import io.netty.util.concurrent.FastThreadLocalThread;
 import stormmq.broker.SemaphoreManager;
 import stormmq.broker.TaskManager;
 import stormmq.model.StormRequest;
@@ -16,16 +20,14 @@ import stormmq.model.StormResponse;
 import stormmq.serializer.RpcDecoder;
 import stormmq.serializer.RpcEncoder;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 /**
  * Created by yang on 16-11-24.
  */
-public class BrokerServerImpl implements BrokerServer {
+public class DefaultBrokerServer implements BrokerServer {
+	
 	private ServerBootstrap bootstrap;
 
-	public BrokerServerImpl() {
+	public DefaultBrokerServer() {
 		init();
 	}
 
@@ -48,8 +50,8 @@ public class BrokerServerImpl implements BrokerServer {
 					.childHandler(new ChannelInitializer<SocketChannel>() {
 						@Override
 						protected void initChannel(SocketChannel socketChannel) throws Exception {
-							socketChannel.pipeline().addLast(new RpcEncoder(StormResponse.class));
 							socketChannel.pipeline().addLast(new RpcDecoder(StormRequest.class));
+							socketChannel.pipeline().addLast(new RpcEncoder(StormResponse.class));
 							socketChannel.pipeline().addLast(handler);
 						}
 					}).option(ChannelOption.SO_KEEPALIVE, true);
@@ -69,17 +71,17 @@ public class BrokerServerImpl implements BrokerServer {
 			// 恢复之前的发送任务到队列
 			TaskManager.RecoverySendTask();
 
-			// 启动发送线程
 			// 获得系统可并行的线程数
-			ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2 + 2);
-			// ExecutorService executorService =
-			// Executors.newFixedThreadPool(1);
-			for (int i = 0; i < Runtime.getRuntime().availableProcessors(); ++i) {
+			int availableProcessors = Runtime.getRuntime().availableProcessors();
+			ExecutorService executorService = Executors.newFixedThreadPool(availableProcessors * 2 + 2);
+			// ExecutorService executorService = Executors.newFixedThreadPool(1);
+			// 启动发送线程
+			for (int i = 0; i < availableProcessors; ++i) {
 				executorService.execute(new SendThread());
 				System.out.println("start sendThread" + (i + 1));
 			}
 			// 启动ack发送线程
-			for (int i = 0; i < Runtime.getRuntime().availableProcessors(); ++i) {
+			for (int i = 0; i < availableProcessors; ++i) {
 				executorService.execute(new AckSendThread());
 				System.out.println("start ack sendThread:" + (i + 1));
 			}
@@ -87,8 +89,8 @@ public class BrokerServerImpl implements BrokerServer {
 			executorService.execute(new RecordThread());
 			// 启动刷盘线程
 			executorService.execute(new FlushThread());
+			
 			cFuture.channel().closeFuture().sync();
-
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.out.println("Broker start error!");
@@ -96,7 +98,7 @@ public class BrokerServerImpl implements BrokerServer {
 	}
 
 	public static void main(String[] args) {
-		BrokerServer brokerServer = new BrokerServerImpl();
+		BrokerServer brokerServer = new DefaultBrokerServer();
 		brokerServer.start();
 	}
 }

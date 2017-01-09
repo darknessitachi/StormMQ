@@ -2,9 +2,6 @@ package stormmq.model;
 
 /**
  * Created by yang on 16-11-8.
- */
-
-/**
  * 请求数据和回应数据的来源
  */
 public enum RequestResponseFromType {

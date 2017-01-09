@@ -103,7 +103,7 @@ public class MessageLog {
      */
     public List<SendTask> Restore() throws  IOException,ClassNotFoundException{
         //Vector是线程安全的.
-        List<SendTask> res = new Vector<SendTask>();
+        List<SendTask> res = new Vector<>();
 
         synFileHandler.PrepareForReadNextLine(); //把文件的position置为0;
 

@@ -38,5 +38,15 @@ public class SendResult {
         return new StringBuilder().append("msg ").append(this.msgId).append("  send ").append(this.status == SendStatus.SUCCESS ? "success":"fail").append("   info:").append(this.info).toString();
     }
 
+	public boolean isSuccess() {
+		return getStatus() == SendStatus.SUCCESS;
+	}
+
+	public static SendResult createFailResult() {
+		SendResult temp = new SendResult();
+		temp.setStatus(SendStatus.FAIL);
+		return temp;
+	}
+
 
 }
