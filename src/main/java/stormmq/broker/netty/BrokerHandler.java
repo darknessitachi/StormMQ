@@ -70,19 +70,16 @@ public class BrokerHandler extends ChannelInboundHandlerAdapter {
                     }
                     consumerRequestListener.onConsumerResultReceived(result);
                     consumerRequestListener.onRequest(request);
-
                 }
                 break;
             case Message:
-                //System.out.println("received Message");
-                Message message = (Message)request.getParameters();
-                //当有多个生产者时同时刷如磁盘的数据量根据生产者上升
-                if(request.getFromType() == RequestResponseFromType.Produce){
-
-                   // System.out.println("Conf");
-
-                    Conf.Increase(message.getTopic());
-                }
+				// System.out.println("received Message");
+				Message message = (Message) request.getParameters();
+	                //当有多个生产者时同时刷如磁盘的数据量根据生产者上升
+				if (request.getFromType() == RequestResponseFromType.Produce) {
+					// System.out.println("Conf");
+					Conf.Increase(message.getTopic());
+				}
                 producerListener.onProducerMessageReceived(message,request.getRequestId(),ctx.channel());
                 //返回给producer消息发送的状态,是否成功.
                 break;
@@ -109,9 +106,6 @@ public class BrokerHandler extends ChannelInboundHandlerAdapter {
             default:
                 System.out.println("type invalid");
                 break;
-
-
-
         }
 
     }

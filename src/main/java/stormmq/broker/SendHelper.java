@@ -22,16 +22,18 @@ import java.util.concurrent.TimeUnit;
  * Created by yang on 16-12-2.
  */
 public class SendHelper {
-    private long timeout = 3000; //默认超时时间
-    public static volatile Map<String, InvokeFuture<Object>> futures = new ConcurrentHashMap<String, InvokeFuture<Object>>();
+	
+	private long timeout = 3_000; // 默认超时时间
+	public static volatile Map<String, InvokeFuture<Object>> futures = new ConcurrentHashMap<>();
+
     //用于发送队列的信息到对应的consumer
     public static void sendMessageByKey(String key){
-        QueueFile queue =  QueueManager.findQueue(key);
-     //   System.out.println("SendHelper:queue.length:"+queue);
+		QueueFile queue = QueueManager.findQueue(key);
+		// System.out.println("SendHelper:queue.length:"+queue);
         try {
             //取出下一个发送的消息
             if(queue.size() > 0){
-                Message pullmsg = (Message) Tool.deserialize(queue.peek(),Message.class);
+                Message pullmsg = Tool.deserialize(queue.peek(),Message.class);
                 StormResponse response = new StormResponse();
                 response.setFromtype(RequestResponseFromType.Broker);
                 response.setResponseType(ResponseType.Message);
@@ -50,9 +52,10 @@ public class SendHelper {
             e.printStackTrace();
         }
     }
+    
     public Object brokerSend(final Channel channel, StormResponse response){
         if(channel != null){
-            final InvokeFuture<Object> future = new InvokeFuture<Object>();
+            final InvokeFuture<Object> future = new InvokeFuture<>();
             futures.put(response.getRequestId(),future);
             //设置这次的请求ID
             future.setRequestId(response.getRequestId());
@@ -65,6 +68,7 @@ public class SendHelper {
                     }
                 }
             });
+            
             try{
                 Object result = future.getResult(timeout, TimeUnit.MILLISECONDS);
                 return  result;
@@ -79,15 +83,14 @@ public class SendHelper {
         }
     }
 
-public static boolean containsFuture(String key) {
-    return futures.containsKey(key);
-}
+	public static boolean containsFuture(String key) {
+		return futures.containsKey(key);
+	}
 
-    public static InvokeFuture<Object> removeFuture(String key) {
-        if(futures.containsKey(key)) {
-            return futures.remove(key);
-        }
-        else
-            return null;
-    }
+	public static InvokeFuture<Object> removeFuture(String key) {
+		if (futures.containsKey(key)) {
+			return futures.remove(key);
+		}
+		return null;
+	}
 }
