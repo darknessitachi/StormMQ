@@ -85,6 +85,7 @@ public class StormStressTest {
 								Message msg = new Message();
 								msg.setBody(BODY.getBytes(character));
 								msg.setProperty("area", "hz" + code);
+								
 								final long startRt = System.currentTimeMillis();
 								SendResult result = producer.sendMessage(msg);
 								if (result.isSuccess()) {

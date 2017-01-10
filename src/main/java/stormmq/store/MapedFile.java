@@ -6,7 +6,6 @@ package stormmq.store;
 
 import com.esotericsoftware.kryo.Registration;
 import io.netty.buffer.ByteBuf;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
