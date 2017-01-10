@@ -2,7 +2,12 @@ package stormmq.StormTest;
 
 import static stormmq.model.RequestType.Message;
 
-import stormmq.smq.*;
+import stormmq.consumer.ConsumeResult;
+import stormmq.consumer.ConsumeStatus;
+import stormmq.consumer.Consumer;
+import stormmq.consumer.DefaultConsumer;
+import stormmq.consumer.MessageListener;
+import stormmq.model.Message;
 
 /**
  * Created by yang on 16-11-25.

@@ -4,10 +4,9 @@ import stormmq.broker.ClientChannelInfo;
 import stormmq.broker.ConsumerManager;
 import stormmq.broker.SendHelper;
 import stormmq.broker.TaskManager;
+import stormmq.consumer.ConsumeResult;
+import stormmq.consumer.ConsumeStatus;
 import stormmq.model.*;
-import stormmq.smq.ConsumeResult;
-import stormmq.smq.ConsumeStatus;
-import stormmq.smq.Message;
 
 import java.util.UUID;
 

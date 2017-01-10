@@ -1,4 +1,4 @@
-package stormmq.smq;
+package stormmq.model;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -11,8 +11,6 @@ public class Message implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	// private static final long serialVersionUID = 5295808332504208830L;
-	
 	private String msgId;
 	private long bornTime;
 	

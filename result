@@ -1,1 +1,1 @@
-TestResult{isSuccess=true, info='send tps:4474, recv tps:4477, send rt:44, avg delay:11'}
+TestResult{isSuccess=true, info='send tps:5246, recv tps:5249, send rt:38, avg delay:10'}

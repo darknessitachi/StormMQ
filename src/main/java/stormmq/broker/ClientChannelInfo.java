@@ -4,9 +4,6 @@ import io.netty.channel.Channel;
 
 /**
  * Created by yang on 16-11-24.
- */
-
-/**
  * 每个consumer的信息
  */
 public class ClientChannelInfo {

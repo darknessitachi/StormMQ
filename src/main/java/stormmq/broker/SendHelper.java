@@ -5,10 +5,10 @@ import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import stormmq.model.InvokeFuture;
+import stormmq.model.Message;
 import stormmq.model.RequestResponseFromType;
 import stormmq.model.ResponseType;
 import stormmq.model.StormResponse;
-import stormmq.smq.Message;
 import stormmq.tool.QueueFile;
 import stormmq.tool.Tool;
 

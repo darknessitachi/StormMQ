@@ -1,9 +1,10 @@
-package stormmq.smq;
+package stormmq.consumer;
 
 import stormmq.consumer.netty.ResponseCallbackListener;
-import stormmq.consumer.netty.StormConsumerConnection;
-import stormmq.consumer.netty.StormConsumerHandler;
-import stormmq.consumer.netty.StormConsumerNettyConnect;
+import stormmq.consumer.netty.ConsumerConnection;
+import stormmq.consumer.netty.ConsumerHandler;
+import stormmq.consumer.netty.ConsumerNettyConnect;
+import stormmq.model.Message;
 import stormmq.model.RequestType;
 import stormmq.model.StormRequest;
 import stormmq.model.StormResponse;
@@ -18,7 +19,7 @@ import java.util.UUID;
  */
 public class DefaultConsumer implements Consumer {
     private String brokerIp; //broker服务器ip地址
-    private StormConsumerConnection consumerConn; //连接broker服务器的连接
+    private ConsumerConnection consumerConn; //连接broker服务器的连接
     private String groupId; //消费组id
     private String topic; //订阅的主题
     private String propertieName; //过滤的属性名
@@ -28,19 +29,20 @@ public class DefaultConsumer implements Consumer {
     private boolean isSubscript = false; //是否输入订阅信息
     private boolean isRunning = false;
     private String clientKey = "";
-    public DefaultConsumer(){
-        brokerIp = "127.0.0.1";
-        consumerConn = new StormConsumerNettyConnect(brokerIp,8888);
-    }
+
+	public DefaultConsumer() {
+		brokerIp = "127.0.0.1";
+		consumerConn = new ConsumerNettyConnect(brokerIp, 8888);
+	}
 
     @Override
     public void start() {
         if(isSubscript){
             //设置处理器和结果回调
             System.out.println("start....");
-            consumerConn.sethandle(new StormConsumerHandler(consumerConn, new ResponseCallbackListener() {
+            consumerConn.setHandle(new ConsumerHandler(consumerConn, new ResponseCallbackListener() {
                 @Override
-                public Object onResponse(Object response) {
+                public ConsumeResult onResponse(StormResponse response) {
                     StormResponse mr = (StormResponse)response;
                    // System.out.println("DefaultConsumer::onResponse");
                     //调用上层设置的回调函数
@@ -92,7 +94,7 @@ public class DefaultConsumer implements Consumer {
             subscript.setPropertieValue(propertieValue);
             subscript.setClientKey(clientKey);
             request.setParameters(subscript);
-            consumerConn.Send(request);
+            consumerConn.send(request);
 
         }
     }
@@ -100,12 +102,12 @@ public class DefaultConsumer implements Consumer {
         boolean isConnected = false;
         System.out.println("restart");
         brokerIp = "127.0.0.1";
-        consumerConn = new StormConsumerNettyConnect(brokerIp,8888);
+        consumerConn = new ConsumerNettyConnect(brokerIp,8888);
         //重新设置处理器
         //设置处理器和结果回调函数
-        consumerConn.sethandle(new StormConsumerHandler(consumerConn, new ResponseCallbackListener() {
+        consumerConn.setHandle(new ConsumerHandler(consumerConn, new ResponseCallbackListener() {
             @Override
-            public Object onResponse(Object response) {
+            public ConsumeResult onResponse(StormResponse response) {
                 StormResponse mr = (StormResponse)response;
                 //调用上层设置的回调函数
                 ConsumeResult result = listener.onMessage((Message)mr.getResponse());
@@ -164,7 +166,7 @@ public class DefaultConsumer implements Consumer {
             subscript.setPropertieValue(propertieValue);
             subscript.setClientKey(clientKey);
             request.setParameters(subscript);
-            consumerConn.Send(request);
+            consumerConn.send(request);
         }
     }
 
@@ -191,7 +193,7 @@ public class DefaultConsumer implements Consumer {
             isRunning = false;
             //发送一个退订消息,把自己从订阅关系里面移除
             StormRequest request = new StormRequest();
-            request.setRequestType(RequestType.Stop);
+            request.setRequestType(RequestType.Unsubscript);
             request.setRequestId(UUID.randomUUID().toString());
             request.setParameters(new String(clientKey));
             consumerConn.SendSync(request);

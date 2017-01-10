@@ -10,7 +10,9 @@ import java.io.Serializable;
  * broker回应生产者或者
  */
 public class StormResponse implements Serializable{
-    private String requestId; //对应的回应的是哪个请求
+	private static final long serialVersionUID = 1L;
+	
+	private String requestId; //对应的回应的是哪个请求
     private Object response;// 回应的消息
     private RequestResponseFromType fromtype; //消息来自哪里
     private ResponseType responseType; //响应的类型

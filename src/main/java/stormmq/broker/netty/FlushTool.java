@@ -3,8 +3,8 @@ package stormmq.broker.netty;
 import stormmq.broker.AckManager;
 import stormmq.broker.SemaphoreManager;
 import stormmq.file.MessageLog;
-import stormmq.smq.SendResult;
-import stormmq.smq.SendStatus;
+import stormmq.producer.SendResult;
+import stormmq.producer.SendStatus;
 import stormmq.tool.LogWriter;
 
 import java.io.IOException;

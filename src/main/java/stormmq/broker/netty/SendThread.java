@@ -1,13 +1,13 @@
 package stormmq.broker.netty;
 
 import stormmq.broker.*;
+import stormmq.consumer.ConsumeResult;
+import stormmq.consumer.ConsumeStatus;
+import stormmq.model.Message;
 import stormmq.model.RequestResponseFromType;
 import stormmq.model.SendTask;
 import stormmq.model.StormRequest;
 import stormmq.model.StormResponse;
-import stormmq.smq.ConsumeResult;
-import stormmq.smq.ConsumeStatus;
-import stormmq.smq.Message;
 
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;

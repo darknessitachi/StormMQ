@@ -2,23 +2,24 @@ package stormmq.producer.netty;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 import stormmq.model.InvokeFuture;
 import stormmq.model.StormResponse;
 
 /**
  * Created by yang on 16-11-22.
  */
-public class StormProducerHandler extends ChannelInboundHandlerAdapter {
+public class ProducerHandler extends SimpleChannelInboundHandler<StormResponse> {
 	
-    private StormProducerConnection connect;
+    private ProducerConnection connect;
     private Throwable cause;
-    private ConnectListener listener;
+    private ProducerConnectListener listener;
 
-	public StormProducerHandler(StormProducerConnection conn) {
+	public ProducerHandler(ProducerConnection conn) {
 		this.connect = conn;
 	}
 
-	public StormProducerHandler(StormProducerConnection conn, ConnectListener listener) {
+	public ProducerHandler(ProducerConnection conn, ProducerConnectListener listener) {
 		this.connect = conn;
 		this.listener = listener;
 	}
@@ -27,26 +28,6 @@ public class StormProducerHandler extends ChannelInboundHandlerAdapter {
     public void channelActive(ChannelHandlerContext ctx) throws Exception{
         super.channelActive(ctx);
         System.out.println("connected on server: "+ ctx.channel().remoteAddress().toString());
-    }
-
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-       // System.out.println("channelRead");
-        StormResponse response = (StormResponse)msg;
-        String key = response.getRequestId();
-		if (connect.contrainsFuture(key)) {
-			InvokeFuture<Object> future = connect.removeFuture(key);
-			// 没有找到的发送请求
-			if (future == null) {
-				return;
-			}
-			if (this.cause != null) {
-				// 设置异常结果,会触发里面的回调函数
-				future.setCause(cause);
-			} else {
-				future.setResult(response);
-			}
-        }
     }
 
     @Override
@@ -64,4 +45,23 @@ public class StormProducerHandler extends ChannelInboundHandlerAdapter {
 			listener.onDisconnected(ctx.channel().remoteAddress().toString());
 		}
     }
+
+	@Override
+	protected void channelRead0(ChannelHandlerContext ctx, StormResponse response) throws Exception {
+		// System.out.println("channelRead");
+        String key = response.getRequestId();
+		if (connect.contrainsFuture(key)) {
+			InvokeFuture<StormResponse> future = connect.removeFuture(key);
+			// 没有找到的发送请求
+			if (future == null) {
+				return;
+			}
+			if (this.cause != null) {
+				// 设置异常结果,会触发里面的回调函数
+				future.setCause(cause);
+			} else {
+				future.setResult(response);
+			}
+        }
+	}
 }

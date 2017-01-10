@@ -1,15 +1,16 @@
-package stormmq.smq; /**
+package stormmq.producer; /**
  * Created by yang on 16-11-22.
  */
 
+import stormmq.model.Message;
 import stormmq.model.RequestResponseFromType;
 import stormmq.model.RequestType;
 import stormmq.model.StormRequest;
 import stormmq.model.StormResponse;
-import stormmq.producer.netty.ConnectListener;
-import stormmq.producer.netty.StormProducerHandler;
-import stormmq.producer.netty.StormProducerConnection;
-import stormmq.producer.netty.StormProducerNettyConnect;
+import stormmq.producer.netty.ProducerConnectListener;
+import stormmq.producer.netty.ProducerHandler;
+import stormmq.producer.netty.ProducerConnection;
+import stormmq.producer.netty.ProducerNettyConnect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +27,9 @@ public class DefaultProducer implements Producer {
 	private static AtomicLong callTimes = new AtomicLong(0L);
 	
 	private String brokerIP; // broker服务器ip地址.
-	private StormProducerConnection brokerConn; // 连接broker服务器的连接
+	private ProducerConnection brokerConn; // 连接broker服务器的连接
 	
-	private List<StormProducerConnection> broker_list; // 拓展的连接,解决网络IO瓶颈.
+	private List<ProducerConnection> broker_list; // 拓展的连接,解决网络IO瓶颈.
 	private AtomicInteger requestId = new AtomicInteger(0); // 消息的ID
 	private String groupId; // 组id.
 	private String topic; // 生产者的topic.
@@ -37,18 +38,18 @@ public class DefaultProducer implements Producer {
 
 	public DefaultProducer() {
 		brokerIP = "127.0.0.1";
-		brokerConn = new StormProducerNettyConnect(brokerIP, 8888);
+		brokerConn = new ProducerNettyConnect(brokerIP, 8888);
 		broker_list = new ArrayList<>();
 		int num = Runtime.getRuntime().availableProcessors() / 2;
 		for (int i = 0; i < num; ++i) {
-			broker_list.add(new StormProducerNettyConnect(brokerIP, 8888));
+			broker_list.add(new ProducerNettyConnect(brokerIP, 8888));
 		}
 	}
 
     @Override
     public void start() {
         //设置处理器
-		brokerConn.setHandler(new StormProducerHandler(brokerConn, new ConnectListener() {
+		brokerConn.setHandler(new ProducerHandler(brokerConn, new ProducerConnectListener() {
 			@Override
 			public void onDisconnected(String t) {
 				// System.out.println("smq.DefaultProducer::::test");
@@ -63,9 +64,9 @@ public class DefaultProducer implements Producer {
         //连接服务器
         brokerConn.connect();
         
-		for (StormProducerConnection conn : broker_list) {
+		for (ProducerConnection conn : broker_list) {
 			// System.out.println("connect");
-			conn.setHandler(new StormProducerHandler(conn));
+			conn.setHandler(new ProducerHandler(conn));
 			conn.connect();
 		}
         isRunning = true;
@@ -86,7 +87,7 @@ public class DefaultProducer implements Producer {
      * 选择一个连接.
      * @return
      */
-    synchronized StormProducerConnection select(){
+    synchronized ProducerConnection select(){
         /**
          * getAndIncrment()返回的原子自增前1前的值.
          * incrementAndGet返回的自增1后的新值.
@@ -105,14 +106,14 @@ public class DefaultProducer implements Producer {
     public void restartConnect(){
 		// System.out.println("smq.DefaultProducer::restartConnect");
 		brokerIP = "127.0.0.1";
-		brokerConn = new StormProducerNettyConnect(brokerIP, 8888);
-		broker_list = new ArrayList<StormProducerConnection>();
+		brokerConn = new ProducerNettyConnect(brokerIP, 8888);
+		broker_list = new ArrayList<ProducerConnection>();
 		int num = Runtime.getRuntime().availableProcessors();
 		for (int i = 0; i < num; ++i) {
-			broker_list.add(new StormProducerNettyConnect(brokerIP, 8888));
+			broker_list.add(new ProducerNettyConnect(brokerIP, 8888));
 		}
         //设置处理器
-        brokerConn.setHandler(new StormProducerHandler(brokerConn, new ConnectListener() {
+        brokerConn.setHandler(new ProducerHandler(brokerConn, new ProducerConnectListener() {
             @Override
             public void onDisconnected(String t) {
                 synchronized (this){
@@ -125,8 +126,8 @@ public class DefaultProducer implements Producer {
         }));
         try{
             brokerConn.connect();
-            for(StormProducerConnection conn : broker_list){
-                conn.setHandler(new StormProducerHandler(conn));
+            for(ProducerConnection conn : broker_list){
+                conn.setHandler(new ProducerHandler(conn));
                 conn.connect();
             }
         }catch (Exception e){
@@ -191,7 +192,7 @@ public class DefaultProducer implements Producer {
 		if (isRunning) {
 			isRunning = false;
 			brokerConn.close();
-			for (StormProducerConnection stormProducerConnection : broker_list) {
+			for (ProducerConnection stormProducerConnection : broker_list) {
 				stormProducerConnection.close();
 			}
 		}

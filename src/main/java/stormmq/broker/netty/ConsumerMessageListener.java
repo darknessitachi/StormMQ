@@ -4,12 +4,12 @@ import stormmq.broker.ClientChannelInfo;
 import stormmq.broker.ConsumerManager;
 import stormmq.broker.SubscriptionInfo;
 import stormmq.broker.TaskManager;
+import stormmq.consumer.ConsumeResult;
+import stormmq.consumer.ConsumeStatus;
 import stormmq.file.LogTask;
+import stormmq.model.Message;
 import stormmq.model.SendTask;
 import stormmq.model.SubscriptRequestinfo;
-import stormmq.smq.ConsumeResult;
-import stormmq.smq.ConsumeStatus;
-import stormmq.smq.Message;
 import stormmq.tool.Tool;
 
 /**

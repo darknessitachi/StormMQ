@@ -2,13 +2,13 @@ package stormmq.model;
 
 import java.io.Serializable;
 
-import stormmq.smq.Message;
-
 /**
  * Created by yang on 16-11-26.
  */
 public class SendTask implements Serializable {
-    private String groupId; //组id
+	private static final long serialVersionUID = 1L;
+	
+	private String groupId; //组id
     private String topic; //主题
     private Message message;
 

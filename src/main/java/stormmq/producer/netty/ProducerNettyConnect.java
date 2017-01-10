@@ -9,10 +9,10 @@ import stormmq.model.InvokeFuture;
 import stormmq.model.InvokeListener;
 import stormmq.model.StormRequest;
 import stormmq.model.StormResponse;
+import stormmq.producer.SendCallback;
+import stormmq.producer.SendResult;
 import stormmq.serializer.RpcDecoder;
 import stormmq.serializer.RpcEncoder;
-import stormmq.smq.SendCallback;
-import stormmq.smq.SendResult;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
@@ -22,24 +22,24 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by yang on 16-11-22.
  */
-public class StormProducerNettyConnect implements StormProducerConnection {
+public class ProducerNettyConnect implements ProducerConnection {
 	
     private InetSocketAddress inetAddr;
     private volatile Channel channel;
     //连接处理类
-    private StormProducerHandler handle;
-    private Map<String,InvokeFuture<Object>> futures = new ConcurrentHashMap<>();
+    private ProducerHandler handle;
+    private Map<String,InvokeFuture<StormResponse>> futures = new ConcurrentHashMap<>();
 	private Map<String, Channel> channels = new ConcurrentHashMap<>(); // ip和channel的映射关系
     private Bootstrap bootstrap;
     private long timeout = 10_000; //默认超时时间.
     private boolean connected = false;
 
-	public StormProducerNettyConnect(String host, int port) {
+	public ProducerNettyConnect(String host, int port) {
 		inetAddr = new InetSocketAddress(host, port);
 	}
 
 	// 设置要处理连接的类
-	public void setHandle(StormProducerHandler handle) {
+	public void setHandle(ProducerHandler handle) {
 		this.handle = handle;
 	}
 
@@ -106,7 +106,7 @@ public class StormProducerNettyConnect implements StormProducerConnection {
     }
 
     @Override
-    public void setHandler(StormProducerHandler handler){
+    public void setHandler(ProducerHandler handler){
         this.handle = handler;
     }
 
@@ -116,12 +116,12 @@ public class StormProducerNettyConnect implements StormProducerConnection {
      * @return
      */
     @Override
-    public Object send(StormRequest request) {
+    public StormResponse send(StormRequest request) {
 		if (channel == null) {
 			channel = getChannel(inetAddr.toString());
 		}
 		if (channel != null) {
-            final InvokeFuture<Object> future = new InvokeFuture<>();
+            final InvokeFuture<StormResponse> future = new InvokeFuture<>();
 			futures.put(request.getRequestId(), future);
 			// 设置本次请求的id.
 			future.setRequestId(request.getRequestId());
@@ -140,7 +140,7 @@ public class StormProducerNettyConnect implements StormProducerConnection {
 			
 			try {
 				Thread.sleep(0);
-				Object result = future.getResult(timeout, TimeUnit.MILLISECONDS);
+				StormResponse result = future.getResult(timeout, TimeUnit.MILLISECONDS);
 				return result;
 			} catch (RuntimeException e) {
 				throw e;
@@ -166,14 +166,14 @@ public class StormProducerNettyConnect implements StormProducerConnection {
 			channel = getChannel(inetAddr.toString());
 		}
         if(channel != null){
-			final InvokeFuture<Object> future = new InvokeFuture<>();
+			final InvokeFuture<StormResponse> future = new InvokeFuture<>();
 			futures.put(request.getRequestId(), future);
 			// 设置这次请求的ID，
 			future.setRequestId(request.getRequestId());
 			// 设置回调函数
-			future.addInvokerListener(new InvokeListener<Object>() {
+			future.addInvokerListener(new InvokeListener<StormResponse>() {
 				@Override
-				public void onResponse(Object o) {
+				public void onResponse(StormResponse o) {
 					StormResponse response = (StormResponse) o;
 					// 回调函数
 					listener.onResult((SendResult) response.getResponse());
@@ -231,7 +231,7 @@ public class StormProducerNettyConnect implements StormProducerConnection {
     }
 
     @Override
-    public InvokeFuture<Object> removeFuture(String key) {
+    public InvokeFuture<StormResponse> removeFuture(String key) {
 		if (contrainsFuture(key)) {
 			return futures.remove(key);
 		}

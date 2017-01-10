@@ -8,11 +8,10 @@ package stormmq.broker;
  * consumer的订阅信息
  */
 public class SubscriptionInfo {
-    private String topic; //主题
-    private String subString; //
-    private String fitlerName; //属性过滤名
-    private String fitlerValue; //属性过滤值
-
+	private String topic; // 主题
+	private String subString; //
+	private String fitlerName; // 属性过滤名
+	private String fitlerValue; // 属性过滤值
 
     public String getTopic() {
         return topic;

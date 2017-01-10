@@ -16,9 +16,9 @@ public class ConsumerGroupInfo {
     private int offset = 0; //偏移
     private final String groupId;
     //这个消费者组订阅哪些topic
-    private final ConcurrentHashMap<String/*topic*/,SubscriptionInfo> subscriptionTable = new ConcurrentHashMap<String, SubscriptionInfo>();
+    private final ConcurrentHashMap<String/*topic*/,SubscriptionInfo> subscriptionTable = new ConcurrentHashMap<>();
    //这个消费组所有的消费者
-    private final ConcurrentHashMap<String/*client id*/,ClientChannelInfo> channelInfoTable = new ConcurrentHashMap<String, ClientChannelInfo>();
+    private final ConcurrentHashMap<String/*client id*/,ClientChannelInfo> channelInfoTable = new ConcurrentHashMap<>();
 
     public ConsumerGroupInfo(String groupId) {
         this.groupId = groupId;
@@ -91,12 +91,14 @@ public class ConsumerGroupInfo {
     public void addSubscript(SubscriptionInfo subscript){
         //如果之前有相同的主题的订阅会被覆盖掉
         this.subscriptionTable.put(subscript.getTopic(),subscript);
-    }
-    public SubscriptionInfo findSubscriptionData(final String topic){
-        return this.subscriptionTable.get(topic);
-    }
-    //获取所有的channel的clientId
-    public List<String> getAllChannelId(){
+	}
+
+	public SubscriptionInfo findSubscriptionData(final String topic) {
+		return this.subscriptionTable.get(topic);
+	}
+
+	// 获取所有的channel的clientId
+	public List<String> getAllChannelId() {
         List<String> result = new ArrayList<String>();
         result.addAll(this.channelInfoTable.keySet());
         return result;
@@ -107,7 +109,7 @@ public class ConsumerGroupInfo {
      * @return
      */
     public ClientChannelInfo getNextChannelInfo(){
-        List<ClientChannelInfo> list = new ArrayList<ClientChannelInfo>();
+        List<ClientChannelInfo> list = new ArrayList<>();
         for(Map.Entry<String,ClientChannelInfo> entry:channelInfoTable.entrySet()){
             list.add(entry.getValue());
         }
@@ -119,9 +121,9 @@ public class ConsumerGroupInfo {
             Channel channel = list.get(pos).getChannel();
             if(channel.isActive() && channel.isOpen() && channel.isWritable()){
                 break;
-            }else {
-                --size;
-            }
+			} else {
+				--size;
+			}
 
         }
         return list.get(pos);

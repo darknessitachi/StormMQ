@@ -6,10 +6,10 @@ import com.sun.javafx.tk.Toolkit;
 import io.netty.channel.Channel;
 import stormmq.broker.*;
 import stormmq.file.LogTask;
+import stormmq.model.Message;
 import stormmq.model.SendTask;
-import stormmq.smq.Message;
-import stormmq.smq.SendResult;
-import stormmq.smq.SendStatus;
+import stormmq.producer.SendResult;
+import stormmq.producer.SendStatus;
 import stormmq.tool.MemoryTool;
 import stormmq.tool.Tool;
 

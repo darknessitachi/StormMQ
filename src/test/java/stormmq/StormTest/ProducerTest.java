@@ -1,7 +1,11 @@
 package stormmq.StormTest;
 
 
-import stormmq.smq.*;
+import stormmq.model.Message;
+import stormmq.producer.DefaultProducer;
+import stormmq.producer.Producer;
+import stormmq.producer.SendResult;
+import stormmq.producer.SendStatus;
 
 /**
  * Created by yang on 16-11-25.

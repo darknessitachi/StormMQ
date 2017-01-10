@@ -1,4 +1,6 @@
-package stormmq.smq;
+package stormmq.producer;
+
+import stormmq.model.Message;
 
 /**
  * Created by yang on 16-11-22.

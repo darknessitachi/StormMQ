@@ -3,20 +3,21 @@ package stormmq.consumer.netty;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import stormmq.model.InvokeFuture;
 import stormmq.model.StormRequest;
+import stormmq.model.StormResponse;
 
 /**
  * Created by yang on 16-11-24.
  */
-public interface StormConsumerConnection {
+public interface ConsumerConnection {
 	void init();
 
 	void connect();
 
 	void connect(String host, int port);
 
-	void sethandle(ChannelInboundHandlerAdapter hanler);
+	void setHandle(ConsumerHandler hanler);
 
-	Object Send(StormRequest request);
+	StormResponse send(StormRequest request);
 
 	void SendSync(StormRequest request);
 
@@ -28,7 +29,7 @@ public interface StormConsumerConnection {
 
 	public boolean ContainsFuture(String key);
 
-	public InvokeFuture<Object> removeFuture(String key);
+	public InvokeFuture<StormResponse> removeFuture(String key);
 
 	public void setTimeOut(long timeOut);
 }

@@ -1,7 +1,7 @@
 package stormmq.broker;
 
 import io.netty.channel.Channel;
-import stormmq.smq.SendResult;
+import stormmq.producer.SendResult;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;

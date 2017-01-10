@@ -1,4 +1,4 @@
-package stormmq.smq;
+package stormmq.consumer;
 
 /**
  * Created by yang on 16-11-24.

@@ -39,7 +39,7 @@ public class InvokeFuture<T> {
 		semaphore.release(Integer.MAX_VALUE - semaphore.availablePermits());
 	}
 
-	public Object getResult(long timeout, TimeUnit unit) {
+	public T getResult(long timeout, TimeUnit unit) {
 		try {
 			if (!semaphore.tryAcquire(timeout, unit)) {
 				throw new RuntimeException("time out");

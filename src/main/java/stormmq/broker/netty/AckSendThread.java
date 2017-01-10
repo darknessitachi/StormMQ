@@ -6,7 +6,7 @@ import stormmq.broker.SemaphoreManager;
 import stormmq.model.RequestResponseFromType;
 import stormmq.model.ResponseType;
 import stormmq.model.StormResponse;
-import stormmq.smq.SendResult;
+import stormmq.producer.SendResult;
 
 /**
  * Created by yang on 16-12-1.

@@ -2,15 +2,18 @@ package stormmq.broker.netty;
 
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.string.StringDecoder;
+import io.netty.channel.SimpleChannelInboundHandler;
 import stormmq.broker.ClientChannelInfo;
 import stormmq.broker.ConsumerManager;
 import stormmq.broker.SendHelper;
-import stormmq.broker.SubscriptionInfo;
-import stormmq.model.*;
-import stormmq.smq.ConsumeResult;
-import stormmq.smq.Message;
+import stormmq.consumer.ConsumeResult;
+import stormmq.model.InvokeFuture;
+import stormmq.model.Message;
+import stormmq.model.RequestResponseFromType;
+import stormmq.model.ResponseType;
+import stormmq.model.StormRequest;
+import stormmq.model.StormResponse;
+import stormmq.model.SubscriptRequestinfo;
 
 
 /**
@@ -18,7 +21,7 @@ import stormmq.smq.Message;
  */
 @ChannelHandler.Sharable
 //当此handle可以被多次使用,即在多线程中,是多个连接的处理器.
-public class BrokerHandler extends ChannelInboundHandlerAdapter {
+public class BrokerHandler extends SimpleChannelInboundHandler<StormRequest> {
 	
     //对Producer发送的消息进行处理.只有一种消息就是Message
     private MessageListener  producerListener;
@@ -46,9 +49,20 @@ public class BrokerHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-       // System.out.println("received request");
-        StormRequest request = (StormRequest)msg;
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        super.channelReadComplete(ctx);
+     //   System.out.println("ReadComplete");
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        super.exceptionCaught(ctx, cause);
+        System.out.println("server exceptionCaught");
+    }
+
+	@Override
+	protected void channelRead0(ChannelHandlerContext ctx, StormRequest request) throws Exception {
+		// System.out.println("received request");
 
         //构建响应消息,不论是消费者还是生产者,发给的broker的消息都是用StormRequest包装,回应的消息都是用StormResponse响应.
         StormResponse response = new StormResponse();
@@ -56,6 +70,17 @@ public class BrokerHandler extends ChannelInboundHandlerAdapter {
         response.setFromtype(RequestResponseFromType.Broker);
       //  System.out.println("request.getRequestType():"+request.getRequestType());
         switch(request.getRequestType()){
+	        case Message:
+				// System.out.println("received Message");
+				Message message = (Message) request.getParameters();
+	                //当有多个生产者时同时刷如磁盘的数据量根据生产者上升
+				if (request.getFromType() == RequestResponseFromType.Produce) {
+					// System.out.println("Conf");
+					Conf.Increase(message.getTopic());
+				}
+	            producerListener.onProducerMessageReceived(message,request.getRequestId(),ctx.channel());
+	            //返回给producer消息发送的状态,是否成功.
+	            break;
             case ConsumeResult:
                // System.out.println("receiced ConsumeResult");
                 ConsumeResult result = (ConsumeResult)request.getParameters();
@@ -72,23 +97,12 @@ public class BrokerHandler extends ChannelInboundHandlerAdapter {
                     consumerRequestListener.onRequest(request);
                 }
                 break;
-            case Message:
-				// System.out.println("received Message");
-				Message message = (Message) request.getParameters();
-	                //当有多个生产者时同时刷如磁盘的数据量根据生产者上升
-				if (request.getFromType() == RequestResponseFromType.Produce) {
-					// System.out.println("Conf");
-					Conf.Increase(message.getTopic());
-				}
-                producerListener.onProducerMessageReceived(message,request.getRequestId(),ctx.channel());
-                //返回给producer消息发送的状态,是否成功.
-                break;
             case Subscript:
-               // System.out.println("received Subscript");
+                // System.out.println("received Subscript");
                 //收到的是来自consumer的订阅消息
 
                 SubscriptRequestinfo subscriptRequestinfo = (SubscriptRequestinfo)request.getParameters();
-               // System.out.println("groupId:"+subscriptRequestinfo.getGroupId());
+                // System.out.println("groupId:"+subscriptRequestinfo.getGroupId());
                 String clientKey = subscriptRequestinfo.getClientKey();
                 ClientChannelInfo channelInfo = new ClientChannelInfo(ctx.channel(),clientKey);
                 consumerRequestListener.onConsumerSubcriptReceived(subscriptRequestinfo,channelInfo);
@@ -99,7 +113,7 @@ public class BrokerHandler extends ChannelInboundHandlerAdapter {
                 ctx.writeAndFlush(response);
                 //System.out.println("发给消费者ack后");
                 break;
-            case Stop:
+            case Unsubscript:
                 String clientId = (String) request.getParameters();
                 ConsumerManager.stopConsumer(clientId);
                 break;
@@ -107,18 +121,5 @@ public class BrokerHandler extends ChannelInboundHandlerAdapter {
                 System.out.println("type invalid");
                 break;
         }
-
-    }
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        super.channelReadComplete(ctx);
-     //   System.out.println("ReadComplete");
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
-        System.out.println("server exceptionCaught");
-    }
+	}
 }

@@ -2,15 +2,16 @@ package stormmq.broker.netty;
 
 import io.netty.channel.Channel;
 import stormmq.broker.ClientChannelInfo;
+import stormmq.consumer.ConsumeResult;
+import stormmq.model.Message;
 import stormmq.model.StormRequest;
 import stormmq.model.SubscriptRequestinfo;
-import stormmq.smq.ConsumeResult;
-import stormmq.smq.Message;
 
 /**
  * Created by yang on 16-11-24.
  */
 public abstract class MessageListener {
+	
    //当收到来自producer的消息时触发的事件,处理完成后需要返回一个ACK确认信息
     void onProducerMessageReceived(Message msg,String requestId,Channel channel){
     }

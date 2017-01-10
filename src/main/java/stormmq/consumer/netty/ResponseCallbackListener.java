@@ -1,10 +1,13 @@
 package stormmq.consumer.netty;
 
+import stormmq.consumer.ConsumeResult;
+import stormmq.model.StormResponse;
+
 /**
  * Created by yang on 16-11-24.
  */
 public interface ResponseCallbackListener {
-	Object onResponse(Object response);
+	ConsumeResult onResponse(StormResponse response);
 
 	void onTimeout();
 

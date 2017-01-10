@@ -7,16 +7,16 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 
-import stormmq.smq.ConsumeResult;
-import stormmq.smq.ConsumeStatus;
-import stormmq.smq.Consumer;
-import stormmq.smq.DefaultConsumer;
-import stormmq.smq.DefaultProducer;
-import stormmq.smq.Message;
-import stormmq.smq.MessageListener;
-import stormmq.smq.Producer;
-import stormmq.smq.SendResult;
-import stormmq.smq.SendStatus;
+import stormmq.consumer.ConsumeResult;
+import stormmq.consumer.ConsumeStatus;
+import stormmq.consumer.Consumer;
+import stormmq.consumer.DefaultConsumer;
+import stormmq.consumer.MessageListener;
+import stormmq.model.Message;
+import stormmq.producer.DefaultProducer;
+import stormmq.producer.Producer;
+import stormmq.producer.SendResult;
+import stormmq.producer.SendStatus;
 
 /**
  * Created by yang on 16-12-11.
